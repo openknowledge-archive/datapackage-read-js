@@ -1,13 +1,39 @@
 var fs = require('fs')
   , url = require('url')
+  , path = require('path')
   , marked = require('marked')
   , request = require('request')
   ;
 
-// Load a datapackage.json from a URL, related files (e.g. README.md) and normalize it
-//
-// Normalize is as per `normalize`
-exports.load = function(datapackage_url, cb) {
+exports.load = function(path_, cb) {
+  // TODO: support just passing a directory
+  var dpjsonPath = path_;
+  var base = path.dirname(dpjsonPath);
+  fs.readFile(dpjsonPath, function(error, body) {
+    if (error) {
+      cb(error);
+      return;
+    }
+    try {
+      var datapackage = JSON.parse(body);
+    } catch(e) {
+      cb({message: 'datapackage.json is invalid JSON. Details: ' + e.message});
+      return;
+    }
+
+    // now dig up and use README if it exists
+    var readmePath = path.join(base, 'README.md');
+    fs.readFile(readmePath, 'utf8', function(err, body) {
+      if (!err) {
+        datapackage['readme'] = body.replace(/\r\n/g, '\n');
+      }
+      datapackage = exports.normalize(datapackage, base);
+      cb(null, datapackage); 
+    });
+  });
+}
+
+exports.loadUrl = function(datapackage_url, cb) {
   var datapackage_url = exports.normalizeDataPackageUrl(datapackage_url);
   var base = datapackage_url.replace(/datapackage.json$/g, '');
   request(datapackage_url, function(error, response, body) {
@@ -44,7 +70,7 @@ exports.load = function(datapackage_url, cb) {
 // hash (keyed by Data Package names)
 //
 // @return: via the callback
-exports.loadMany = function(urls, callback) {
+exports.loadManyUrls = function(urls, callback) {
   var output = {}
     , count = urls.length
     ;
@@ -55,7 +81,7 @@ exports.loadMany = function(urls, callback) {
     }
   }
   urls.forEach(function(url) {
-    exports.load(url, function(err, dpjson) {
+    exports.loadUrl(url, function(err, dpjson) {
       if (err) {
         console.error(url, err)
       } else {
@@ -78,10 +104,6 @@ exports.normalizeDataPackageUrl = function(url) {
   return url;
 };
 
-// Normalize a DataPackage DataPackage.json in various ways
-// 
-// @param datapackage: datapackage object (already parsed from JSON)
-// @param url: [optional] url to datapackage.json or the root directory in which it is contained
 exports.normalize = function(datapackage, url_) {
   var base = url_ ? url_.replace(/datapackage.json$/g, '') : '';
   // ensure certain fields exist
@@ -98,13 +120,17 @@ exports.normalize = function(datapackage, url_) {
     datapackage.readme = datapackage.description;
   }
 
-  datapackage.readme_html = marked(datapackage.readme);
+  datapackage.readmeHtml = marked(datapackage.readme);
+
+  if (!datapackage.resources) {
+    datapackage.resources = [];
+  }
 
   datapackage.resources.forEach(function(info) {
-    if (!info.url && info.path) {
+    if (!info.url && info.path && base) {
       info.url = base + info.path;
     }
-    if (!info.name) {
+    if (!info.name && info.url) {
       info.name = _nameFromUrl(info.url);
     }
     // upgrade for change in JTS spec - https://github.com/dataprotocols/dataprotocols/issues/60

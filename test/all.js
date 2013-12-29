@@ -54,7 +54,23 @@ describe('normalize', function() {
 
 describe('load', function() {
   it('works in basic case', function(done) {
-    tools.load(sourceUrl, function(err, dpout) {
+    tools.load('test/data/dp1/datapackage.json', function(error, data) {
+      assert(!error)
+      assert.equal(data.readme, 'The README.\n');
+      done();
+    });
+  });
+  it('reports error with bad path', function(done) {
+    tools.load('test/data/dp1/does-not-exist.json', function(error, data) {
+      assert(error)
+      done();
+    });
+  });
+});
+
+describe('loadUrl', function() {
+  it('works in basic case', function(done) {
+    tools.loadUrl(sourceUrl, function(err, dpout) {
       assert(err === null);
       assert.equal(dpout.resources[0].url, sourceUrlBase + 'data/data.csv');
       assert(dpout.readme.length > 50);
@@ -66,7 +82,7 @@ describe('load', function() {
   it('works with 404', function(done) {
     this.timeout(4000);
     var badUrl = 'https://raw.github.com/datasets/gold-prices/master/xyz.txt';
-    tools.load(badUrl, function(err, dpout) {
+    tools.loadUrl(badUrl, function(err, dpout) {
       assert(err!=null);
       done();
     });
@@ -74,7 +90,7 @@ describe('load', function() {
 
   it('works with bad data', function(done) {
     var csvurl = 'https://raw.github.com/datasets/gold-prices/master/README.md'; 
-    dpout = tools.load(csvurl, function(err, dpout) {
+    dpout = tools.loadUrl(csvurl, function(err, dpout) {
       // disable
       // as we now add datapackage.json to url this gives 404 rather than bad JSON
       // assert.equal(err.message.indexOf('datapackage.json is invalid JSON'), 0);
@@ -83,10 +99,10 @@ describe('load', function() {
   });
 });
 
-describe('loadMany', function() {
+describe('loadManyUrls', function() {
   it('works', function(done) {
     gdpUrl = 'https://github.com/datasets/gdp';
-    tools.loadMany([sourceUrl, gdpUrl], function(err, dpout) {
+    tools.loadManyUrls([sourceUrl, gdpUrl], function(err, dpout) {
       assert.equal(Object.keys(dpout).length, 2);
       assert.equal(dpout['gdp'].homepage, gdpUrl);
       done();
