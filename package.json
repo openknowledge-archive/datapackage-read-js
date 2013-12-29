@@ -1,0 +1,31 @@
+{
+  "name": "datapackage-read",
+  "description": "Read Data Packages",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": {
+    "name": "Rufus Pollock",
+    "email": "rufus.pollock@okfn.org"
+  },
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/okfn/datapackage-read.git"
+  },
+  "bugs": {
+    "url": "http://github.com/okfn/datapackage-read/issues"
+  },
+  "engines": [
+    "node >= 0.6"
+  ],
+  "main": "./datapackage-read.js",
+  "dependencies": {
+      "marked": ""
+    , "request": ""
+  },
+  "devDependencies": {
+    "mocha": ""
+  }
+}
