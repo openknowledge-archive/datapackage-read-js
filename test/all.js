@@ -120,3 +120,26 @@ describe('normalizeDataPackageUrl', function() {
   });
 });
 
+describe('parseSpecString', function() {
+  it('url ok', function() {
+    var url = 'http://data.okfn.org/data/country-codes';
+    var out = tools.parseSpecString(url);
+    assert.equal(out.url, url);
+    assert.equal(out.name, 'country-codes');
+  });
+
+  it('url ok', function() {
+    var url = 'http://data.okfn.org/data/country-codes/datapackage.json';
+    var out = tools.parseSpecString(url);
+    assert.equal(out.url, url.replace('/datapackage.json', ''));
+    assert.equal(out.name, 'country-codes');
+  });
+
+  it('github ok', function() {
+    gdpUrl = 'https://github.com/datasets/gdp';
+    var out = tools.parseSpecString(gdpUrl);
+    assert.equal(out.url, 'https://raw.github.com/datasets/gdp/master');
+    assert.equal(out.name, 'gdp');
+  });
+});
+

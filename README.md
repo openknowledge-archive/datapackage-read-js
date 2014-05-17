@@ -59,6 +59,48 @@ Normalize a DataPackage DataPackage.json in various ways, for example:
 * Setting a url for resources
 * Guessing a homepage
 
+## parseSpecString
+
+```
+datapackage.parseSpecString(specString)
+```
+
+Parse a Data Package Spec string to a Spec object/dictionary. (See below for
+more on Data Package Specs).
+
+## Data Package Spec (Specifier)
+
+A Data Package "Spec" is a small Object/Hash which describing the identify and
+location of a Data Package. Its structure is like:
+
+    {
+      url: ...
+      name: ...
+      version: ...
+    }
+
+It can be parsed (and less importantly) serialized to a simple string. Spec
+strings will be frequently used on e.g. the command line to identify a data
+package.
+
+A spec string can be:
+
+* A direct URL to a datapackage e.g.
+
+       http://mywebsite.com/mydatapackage/
+       // or with the datapackage.json
+       http://mywebsite.com/mydatapackage/datapackage.json
+
+* A github URL
+
+       http://github.com/datasets/gold-prices
+
+* A single name
+
+       gold-prices
+
+   In this case the data package must be in the core datasets in the primary registry.
+
 # Tests
 
 Run the tests with:

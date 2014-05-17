@@ -1,5 +1,5 @@
 var fs = require('fs')
-  , url = require('url')
+  , urlmod = require('url')
   , path = require('path')
   , marked = require('marked')
   , request = require('request')
@@ -55,7 +55,7 @@ exports.loadUrl = function(datapackage_url, cb) {
     // now dig up and use README if it exists
     var readme_url = base + 'README.md'
     request(readme_url, function(err, resp, body) {
-      if (!err) {
+      if (!err && resp.statusCode == 200) {
         datapackage['readme'] = body.replace(/\r\n/g, '\n');
       }
       datapackage = exports.normalize(datapackage, base);
@@ -91,18 +91,6 @@ exports.loadManyUrls = function(urls, callback) {
     });
   });
 }
-
-exports.normalizeDataPackageUrl = function(url) {
-  var ghNotRaw = 'https://github.com';
-  if (url.indexOf(ghNotRaw) != -1 && url.indexOf('datapackage.json') == -1) {
-    url = url.replace(ghNotRaw, 'https://raw.github.com') + '/master/datapackage.json';
-  }
-  if (url.indexOf('datapackage.json') == -1) {
-    url = url.replace(/\/$/, '');
-    url += '/datapackage.json'
-  }
-  return url;
-};
 
 exports.normalize = function(datapackage, url_) {
   var base = url_ ? url_.replace(/datapackage.json$/g, '') : '';
@@ -168,13 +156,59 @@ exports.normalize = function(datapackage, url_) {
   return datapackage;
 }
 
+// Parse Data Package spec strings (see README)
+exports.parseSpecString = function(specString) {
+  out = {
+    url: '',
+    name: '',
+    version: '',
+    original: specString
+  }
+
+  var url = specString.replace('/datapackage.json', '')
+    , name = ''
+    ;
+
+  if (url.indexOf('http') != -1) {
+    var urlparts = urlmod.parse(url)
+      , path = urlparts.pathname
+      , parts = path.split('/')
+      , name = parts.pop()
+      ;
+
+    out.url = url;
+
+    var ghNotRaw = '//github.com';
+    if (url.indexOf(ghNotRaw) != -1) {
+      out.url = url.replace(ghNotRaw, '//raw.github.com') + '/master';
+      out.version = 'master'
+    }
+  }
+
+  var _tmp = name.split('@');
+  out.name = _tmp[0];
+  if (_tmp.length > 1) {
+    out.version = _tmp.split('@');
+  }
+  return out;
+}
+
+exports.normalizeDataPackageUrl = function(url) {
+  var url = exports.parseSpecString(url).url;
+  if (url.indexOf('datapackage.json') == -1) {
+    url = url.replace(/\/$/, '');
+    url += '/datapackage.json'
+  }
+  return url;
+};
+
 // ========================================================
 // Utilities
 
 // Create a name from a URL (no extension)
 // e.g. http://.../abc/xyz.fbc.csv?... => xyz.fbc
 function _nameFromUrl(url_) {
-  var name = url.parse(url_).pathname.split('/').pop();
+  var name = urlmod.parse(url_).pathname.split('/').pop();
   if (name.indexOf('.') != -1) {
     var _parts = name.split('.');
     _parts.pop();
