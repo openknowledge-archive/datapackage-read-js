@@ -100,6 +100,7 @@ describe('loadUrl', function() {
 });
 
 describe('loadManyUrls', function() {
+  this.timeout(4000);
   it('works', function(done) {
     gdpUrl = 'https://github.com/datasets/gdp';
     tools.loadManyUrls([sourceUrl, gdpUrl], function(err, dpout) {
@@ -107,39 +108,6 @@ describe('loadManyUrls', function() {
       assert.equal(dpout['gdp'].homepage, gdpUrl);
       done();
     });
-  });
-});
-
-describe('normalizeDataPackageUrl', function() {
-  it('works', function() {
-    gdpUrl = 'https://github.com/datasets/gdp';
-    var out = tools.normalizeDataPackageUrl(gdpUrl);
-    assert.equal(out, 'https://raw.github.com/datasets/gdp/master/datapackage.json');
-    var out = tools.normalizeDataPackageUrl('http://xyz.com/mydatapackage/');
-    assert.equal(out, 'http://xyz.com/mydatapackage/datapackage.json');
-  });
-});
-
-describe('parseSpecString', function() {
-  it('url ok', function() {
-    var url = 'http://data.okfn.org/data/country-codes';
-    var out = tools.parseSpecString(url);
-    assert.equal(out.url, url);
-    assert.equal(out.name, 'country-codes');
-  });
-
-  it('url ok', function() {
-    var url = 'http://data.okfn.org/data/country-codes/datapackage.json';
-    var out = tools.parseSpecString(url);
-    assert.equal(out.url, url.replace('/datapackage.json', ''));
-    assert.equal(out.name, 'country-codes');
-  });
-
-  it('github ok', function() {
-    gdpUrl = 'https://github.com/datasets/gdp';
-    var out = tools.parseSpecString(gdpUrl);
-    assert.equal(out.url, 'https://raw.github.com/datasets/gdp/master');
-    assert.equal(out.name, 'gdp');
   });
 });
 

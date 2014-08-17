@@ -3,6 +3,7 @@ var fs = require('fs')
   , path = require('path')
   , marked = require('marked')
   , request = require('request')
+  , spec = require('datapackage-spec')
   ;
 
 exports.load = function(path_, cb) {
@@ -33,10 +34,11 @@ exports.load = function(path_, cb) {
   });
 }
 
-exports.loadUrl = function(datapackage_url, cb) {
-  var datapackage_url = exports.normalizeDataPackageUrl(datapackage_url);
-  var base = datapackage_url.replace(/datapackage.json$/g, '');
-  request(datapackage_url, function(error, response, body) {
+exports.loadUrl = function(dataPackageUrl, cb) {
+  var theSpec = spec.parse(dataPackageUrl)
+    , base = theSpec.url;
+    ;
+  request(theSpec.dataPackageJsonUrl, function(error, response, body) {
     if (error) {
       cb(error);
       return;
@@ -155,52 +157,6 @@ exports.normalize = function(datapackage, url_) {
 
   return datapackage;
 }
-
-// Parse Data Package spec strings (see README)
-exports.parseSpecString = function(specString) {
-  out = {
-    url: '',
-    name: '',
-    version: '',
-    original: specString
-  }
-
-  var url = specString.replace('/datapackage.json', '')
-    , name = ''
-    ;
-
-  if (url.indexOf('http') != -1) {
-    var urlparts = urlmod.parse(url)
-      , path = urlparts.pathname
-      , parts = path.split('/')
-      , name = parts.pop()
-      ;
-
-    out.url = url;
-
-    var ghNotRaw = '//github.com';
-    if (url.indexOf(ghNotRaw) != -1) {
-      out.url = url.replace(ghNotRaw, '//raw.github.com') + '/master';
-      out.version = 'master'
-    }
-  }
-
-  var _tmp = name.split('@');
-  out.name = _tmp[0];
-  if (_tmp.length > 1) {
-    out.version = _tmp.split('@');
-  }
-  return out;
-}
-
-exports.normalizeDataPackageUrl = function(url) {
-  var url = exports.parseSpecString(url).url;
-  if (url.indexOf('datapackage.json') == -1) {
-    url = url.replace(/\/$/, '');
-    url += '/datapackage.json'
-  }
-  return url;
-};
 
 // ========================================================
 // Utilities

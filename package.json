@@ -22,8 +22,9 @@
   ],
   "main": "./datapackage-read.js",
   "dependencies": {
-      "marked": ""
-    , "request": ""
+    "marked": "",
+    "request": "",
+    "datapackage-spec": "git://github.com/okfn/datapackage-spec"
   },
   "devDependencies": {
     "mocha": ""
