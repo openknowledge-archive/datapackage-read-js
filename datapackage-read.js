@@ -7,9 +7,15 @@ var fs = require('fs')
   ;
 
 exports.load = function(path_, cb) {
-  // TODO: support just passing a directory
-  var dpjsonPath = path_;
-  var base = path.dirname(dpjsonPath);
+  if (!fs.existsSync(path_)) {
+    cb('Data Package path does not exist: ' + path_);
+    return;
+  }
+
+  var dpjsonPath = fs.statSync(path_).isDirectory() ? path.join(path_, 'datapackage.json') : path_
+    , base = path.dirname(dpjsonPath)
+    ;
+
   fs.readFile(dpjsonPath, function(error, body) {
     if (error) {
       cb(error);

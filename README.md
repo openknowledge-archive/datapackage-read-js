@@ -24,10 +24,11 @@ var datapackage = require('datapackage-read');
 datapackage.load(path, callback)
 ```
 
-* `path` {String} The path to the datapackage.json file
+* `path` {String} The path to the Data Package directory or the
+  datapackage.json file
 
 Load a datapackage.json from a file and normalize it as per the normalize
-function. Will search for README at REAME.md in same directory as
+function. Will search for README at README.md in same directory as
 datapackage.json.
 
 ## loadUrl

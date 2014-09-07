@@ -60,6 +60,13 @@ describe('load', function() {
       done();
     });
   });
+  it('works with a directory', function(done) {
+    tools.load('test/data/dp1', function(error, data) {
+      assert(!error)
+      assert.equal(data.readme, 'The README.\n');
+      done();
+    });
+  });
   it('reports error with bad path', function(done) {
     tools.load('test/data/dp1/does-not-exist.json', function(error, data) {
       assert(error)
