@@ -1,7 +1,7 @@
 {
   "name": "datapackage-read",
   "description": "Read Data Packages",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "license": "MIT",
   "author": {
     "name": "Rufus Pollock",
@@ -24,7 +24,7 @@
   "dependencies": {
     "marked": "",
     "request": "",
-    "datapackage-spec": "git://github.com/okfn/datapackage-spec"
+    "datapackage-spec": ">=0.2.0"
   },
   "devDependencies": {
     "mocha": ""
