@@ -3,7 +3,7 @@ var fs = require('fs')
   , path = require('path')
   , marked = require('marked')
   , request = require('request')
-  , spec = require('datapackage-spec')
+  , spec = require('datapackage-identifier')
   ;
 
 exports.load = function(path_, cb) {

@@ -27,8 +27,6 @@ var dpin = {
 };
 var dpin2 = JSON.parse(JSON.stringify(dpin));
 dpin2.readme = 'Abc *em*\nzzz\n\nXYZ';
-var sourceUrl = 'https://raw.github.com/datasets/gold-prices/master/datapackage.json'; 
-var sourceUrlBase = 'https://raw.github.com/datasets/gold-prices/master/'; 
 
 describe('normalize', function() {
   it('works in basic case', function() {
@@ -75,9 +73,25 @@ describe('load', function() {
   });
 });
 
+var sourceUrl = 'https://raw.github.com/datasets/gold-prices/master/datapackage.json';
+var sourceSimpleGithub = 'https://github.com/datasets/gold-prices';
+var sourceUrlBase = 'https://raw.github.com/datasets/gold-prices/master/';
+
 describe('loadUrl', function() {
   it('works in basic case', function(done) {
+    this.timeout(4000);
     tools.loadUrl(sourceUrl, function(err, dpout) {
+      assert(err === null);
+      assert.equal(dpout.resources[0].url, sourceUrlBase + 'data/data.csv');
+      assert(dpout.readme.length > 50);
+      assert(dpout.description.length <  150);
+      done();
+    });
+  });
+
+  it('works in simple github url case', function(done) {
+    this.timeout(4000);
+    tools.loadUrl(sourceSimpleGithub, function(err, dpout) {
       assert(err === null);
       assert.equal(dpout.resources[0].url, sourceUrlBase + 'data/data.csv');
       assert(dpout.readme.length > 50);
